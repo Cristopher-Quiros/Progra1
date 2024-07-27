@@ -1,0 +1,12 @@
+123,Aeropuerto Internacional Juan Santamaría,Costa Rica
+234,Aeropuerto Internacional John F. Kennedy,Estados Unidos
+345,Aeropuerto Internacional de Toronto-Pearson,Canadá
+456,Aeropuerto Internacional de Cancún,México
+567,Aeropuerto Internacional de Heathrow,Reino Unido
+678,Aeropuerto Internacional de Frankfurt,Alemania
+789,Aeropuerto Internacional de Schiphol,Países Bajos
+890,Aeropuerto Internacional de Barajas-Adolfo Suárez,España
+901,Aeropuerto Internacional de Changi,Singapur
+112,Aeropuerto Internacional de Haneda,Japón
+223,Aeropuerto Internacional de Hong Kong,Hong Kong
+334,Aeropuerto Internacional de Incheon,Corea del Sur
