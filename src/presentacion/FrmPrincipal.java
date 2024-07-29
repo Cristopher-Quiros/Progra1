@@ -172,8 +172,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
         String correo = txtCorreo.getText();
         String contrasena = pfContrasena.getText();
         String edad = String.valueOf(spEdad.getValue());
-        Boolean tipo = false;
-        objUsuarios.listaUsuarios.add(new objUsuarios(cedula, nombre, edad, contrasena, correo));
+        int tipo = 0;
+        objUsuarios.listaUsuarios.add(new objUsuarios(cedula, nombre, edad, contrasena, correo, tipo));
         aviones.InsertarUsuario(objUsuarios.listaUsuarios);
         JOptionPane.showMessageDialog(null, "Registrado Correctamente!", "Confirmacion!", JOptionPane.INFORMATION_MESSAGE);
         

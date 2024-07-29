@@ -17,17 +17,27 @@ public class objUsuarios {
     private String edad;
     private String contrasena;
     private String correo;
+    private int tipo;
     
     public static ArrayList<objUsuarios> listaUsuarios = new ArrayList<>();
 
     
-    public objUsuarios (String cedula, String nombre, String edad, String contrasena, String correo) {
+    public objUsuarios (String cedula, String nombre, String edad, String contrasena, String correo, int tipo) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.edad = edad;
         this.contrasena = contrasena;
         this.correo = correo;
+        this.tipo = tipo;
 
+    }
+
+    public int getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(int tipo) {
+        this.tipo = tipo;
     }
 
     public String getCedula() {
