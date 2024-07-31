@@ -50,7 +50,7 @@ public class Aviones {
             String contrasena = listaUsuarios.get(i).getContrasena();
             String correo = listaUsuarios.get(i).getCorreo();
             String edad = listaUsuarios.get(i).getEdad();
-            int tipo = listaUsuarios.get(i).getTipo();
+            String tipo = listaUsuarios.get(i).getTipo();
             datos = cedula + "," + nombre + "," + contrasena + "," + correo + "," + edad + "," + tipo;
         }
 
@@ -74,48 +74,64 @@ public class Aviones {
         bdaviones.GuardarEnArchivo(datos);
     } */
     // ---------------------------------------------------------------------------------------------------
-    public ArrayList<String> filtrarPilotos() {
-        ArrayList<String> tripulacion = LeerTripulacion();  // Obtén la lista de tripulación
-        ArrayList<String> pilotos = new ArrayList<>();      // Lista para almacenar los pilotos
+    public ArrayList<String> filtrarPilotos(String aerolineaID) {
+        ArrayList<String> tripulacion = bdaviones.LeerTripulacion(); 
+        ArrayList<String> pilotos = new ArrayList<>();
+
 
         for (String tripulante : tripulacion) {
-            String[] partes = tripulante.split(",");  // Divide cada cadena de tripulación en partes
-
-            if (partes.length >= 5) {  // Asegúrate de que hay suficientes partes
-                String rol = partes[3].trim();  // Obtén el rol del tripulante
-                if (rol.equalsIgnoreCase("Piloto")) {  // Verifica si el rol es Piloto
-                    pilotos.add(tripulante);  // Agrega el tripulante a la lista de pilotos
+            String limpiaTripulante = tripulante.trim();      
+            String[] partes = limpiaTripulante.split("\\s*,\\s*"); // Divide la línea en partes usando coma como delimitador
+  
+            if (partes.length == 5) {
+                String rol = partes[3].trim();
+                String idAerolineaTripulante = partes[2].trim();
+                if (rol.equalsIgnoreCase("Piloto") && idAerolineaTripulante.equals(aerolineaID)) {
+                    pilotos.add(limpiaTripulante);
                 }
+            } else {
+                System.out.println("Formato inesperado para tripulante: " + limpiaTripulante);
             }
         }
-
-        // Devuelve la lista de pilotos filtrados
         return pilotos;
     }
 
-    // Método para filtrar servicio al cliente
-    public ArrayList<String> filtrarServicioAlCliente() {
-        ArrayList<String> tripulacion = LeerTripulacion();  // Obtén la lista de tripulación
-        ArrayList<String> servicioAlCliente = new ArrayList<>();      // Lista para almacenar el servicio al cliente
+    public ArrayList<String> filtrarServicioAlCliente(String aerolineaID) {
+        ArrayList<String> tripulacion = bdaviones.LeerTripulacion(); // Aquí obtenemos la lista de tripulantes
+        ArrayList<String> servicioAlCliente = new ArrayList<>();
 
         for (String tripulante : tripulacion) {
-            String[] partes = tripulante.split(",");  // Divide cada cadena de tripulación en partes
+            String limpiaTripulante = tripulante.trim();
+            String[] partes = limpiaTripulante.split("\\s*,\\s*");
 
-            if (partes.length >= 5) {  // Asegúrate de que hay suficientes partes
-                String rol = partes[3].trim();  // Obtén el rol del tripulante
-                if (rol.equalsIgnoreCase("Servicio al Cliente")) {  // Verifica si el rol es Servicio al Cliente
-                    servicioAlCliente.add(tripulante);  // Agrega el tripulante a la lista de servicio al cliente
+            // Verifica la longitud de las partes y muestra información para depuración
+            if (partes.length == 5) {
+                String rol = partes[3].trim();
+                String idAerolineaTripulante = partes[2].trim();
+
+                if (rol.equalsIgnoreCase("Servicio al Cliente") && idAerolineaTripulante.equals(aerolineaID)) {
+                    servicioAlCliente.add(limpiaTripulante);
                 }
+            } else {
+                System.out.println("Formato inesperado para tripulante: " + limpiaTripulante);
             }
         }
-
-        // Devuelve la lista de servicio al cliente filtrado
         return servicioAlCliente;
     }
 
-    public void ModificarDisponibilidad(String pilotoSeleccionado) {
+
+public void ModificarDisponibilidad(String pilotoSeleccionado) {
         try {
             bdaviones.ModificarDisponibilidad(pilotoSeleccionado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Manejo de errores adecuado
+        }
+    }
+
+    public void ModificarDisponibilidadServicioAlCLiente(String AzafataSeleccionada) {
+        try {
+            bdaviones.ModificarDisponibilidad(AzafataSeleccionada);
         } catch (Exception e) {
             e.printStackTrace();
             // Manejo de errores adecuado

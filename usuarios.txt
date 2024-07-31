@@ -1,2 +1,3 @@
-123456,Tangamandapio,123456789,sadasd@gmail.com,38
-987654,Don Ramon,987654321,mellevalaquemetrajo@gmail.com,89
+123123123,Cristo Rey,123,asdasd,100,0
+123,asdasd,123,asdasdads,100,0
+121321,Tangamandapio,123,asdasdasd,1,0

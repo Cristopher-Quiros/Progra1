@@ -126,28 +126,73 @@ public class BDAviones {
             try (BufferedReader reader = new BufferedReader(new FileReader(pathOriginal.toFile())); BufferedWriter writer = new BufferedWriter(new FileWriter(pathTemporal.toFile()))) {
 
                 String linea;
-                while ((linea = reader.readLine()) != null) {
-                    String[] columnas = linea.split(","); // Asumimos que el archivo CSV usa comas como delimitadores
+                boolean modificacionRealizada = false;
 
-                    // Verifica si la línea corresponde al piloto seleccionado y cámbiala
-                    if (columnas.length > 0 && columnas[0].equals(pilotoSeleccionado)) {
-                        // Asumimos que la última columna indica la disponibilidad
-                        if (columnas.length > 1 && columnas[columnas.length - 1].trim().equals("0")) {
-                            columnas[columnas.length - 1] = "1"; // Cambia la disponibilidad
+                while ((linea = reader.readLine()) != null) {
+                    String[] columnas = linea.split(",");
+
+                    if (columnas.length > 1 && columnas[0].equals(pilotoSeleccionado)) {
+                        // Si el piloto está disponible (indicado por "0"), cámbialo a no disponible ("1")
+                        if (columnas[columnas.length - 1].trim().equals("0")) {
+                            columnas[columnas.length - 1] = "1";
+                            modificacionRealizada = true;
                         }
                     }
 
-                    // Escribe la línea (modificada o no) al archivo temporal
                     writer.write(String.join(",", columnas));
                     writer.newLine();
                 }
 
-                // Asegúrate de cerrar los buffers antes de mover el archivo
+                if (!modificacionRealizada) {
+                    System.out.println("No se encontró el piloto o la disponibilidad ya está modificada.");
+                }
+
                 writer.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                // Reemplaza el archivo original con el archivo temporal
+                try {
+                    Files.move(pathTemporal, pathOriginal, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void ModificarDisponibilidadServicioAlCliente(String AzafataSeleccionada) {
+        synchronized (fileLock) {
+            Path pathOriginal = Paths.get(archivoTxt);
+            Path pathTemporal = Paths.get(archivoCopia);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(pathOriginal.toFile())); BufferedWriter writer = new BufferedWriter(new FileWriter(pathTemporal.toFile()))) {
+
+                String linea;
+                boolean modificacionRealizada = false;
+
+                while ((linea = reader.readLine()) != null) {
+                    String[] columnas = linea.split(",");
+
+                    if (columnas.length > 1 && columnas[0].equals(AzafataSeleccionada)) {
+                        // Si el piloto está disponible (indicado por "0"), cámbialo a no disponible ("1")
+                        if (columnas[columnas.length - 1].trim().equals("0")) {
+                            columnas[columnas.length - 1] = "1";
+                            modificacionRealizada = true;
+                        }
+                    }
+
+                    writer.write(String.join(",", columnas));
+                    writer.newLine();
+                }
+
+                if (!modificacionRealizada) {
+                    System.out.println("No se encontró el personal de servicio al cliente o la disponibilidad ya está modificada.");
+                }
+
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
                     Files.move(pathTemporal, pathOriginal, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {

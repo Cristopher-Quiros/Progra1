@@ -6,9 +6,9 @@
 678901234,Linda Garcia,375,Piloto,0
 789012345,David Martinez,375,Servicio al Cliente,0
 890123456,Barbara Rodriguez,375,Servicio al Cliente,0
-901234567,Robert Hernandez,289,Piloto,0
+901234567,Robert Hernandez,289,Piloto,1
 123098765,Patricia Lee,289,Piloto,0
-234109876,William Hall,289,Servicio al Cliente,0
+234109876,William Hall,289,Servicio al Cliente,1
 345210987,Elizabeth Clark,289,Servicio al Cliente,0
 456321098,Joseph Lewis,461,Piloto,0
 567432109,Jennifer Walker,461,Piloto,0

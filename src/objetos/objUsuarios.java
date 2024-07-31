@@ -17,12 +17,12 @@ public class objUsuarios {
     private String edad;
     private String contrasena;
     private String correo;
-    private int tipo;
+    private String tipo;
     
     public static ArrayList<objUsuarios> listaUsuarios = new ArrayList<>();
 
     
-    public objUsuarios (String cedula, String nombre, String edad, String contrasena, String correo, int tipo) {
+    public objUsuarios (String cedula, String nombre, String edad, String contrasena, String correo, String tipo) {
         this.cedula = cedula;
         this.nombre = nombre;
         this.edad = edad;
@@ -32,11 +32,11 @@ public class objUsuarios {
 
     }
 
-    public int getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(int tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
