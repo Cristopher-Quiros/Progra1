@@ -4,11 +4,14 @@
  */
 package presentacion;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Random;
 import javax.swing.*;
 
 import negocio.Aviones;
+import objetos.objVuelos;
 
 /**
  *
@@ -16,32 +19,63 @@ import negocio.Aviones;
  */
 public class FrmAdmin extends javax.swing.JFrame {
 
-    /**
-     * Creates new form FrmAdmin
-     */
-    private Map<String, String> aerolineasMap; // Mapa para almacenar la relación aerolínea-ID
-    private Map<String, String> aeropuertosMap;
+    private Map<String, String> aerolineasMap;
+    private Map<String, String> aeropuertosLlegadaMap;
+    private Map<String, String> aeropuertosSalidaMap;
 
     Aviones aviones = new Aviones();
 
     public FrmAdmin() {
         initComponents();
         aerolineasMap = new HashMap<>(); // Inicializar el HashMap aquí
-        aeropuertosMap = new HashMap<>();
+        aeropuertosLlegadaMap = new HashMap<>();
+        aeropuertosSalidaMap = new HashMap<>();
         verAerolineas();
-        verAeropuertos();
-        IdVuelo();
+        verAeropuertosLlegada();
+        verAeropuertosSalida();
 
+        JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spHoraLlegada.getEditor();
+        JFormattedTextField textField = editor.getTextField();
+
+        JSpinner.DefaultEditor editor1 = (JSpinner.DefaultEditor) spHoraSalida.getEditor();
+        JFormattedTextField textField1 = editor1.getTextField();
+
+        textField.setEditable(false);
+        textField.setFocusable(false);
+
+        textField1.setEditable(false);
+        textField1.setFocusable(false);
+
+        fechaSalida.setMinSelectableDate(new GregorianCalendar(2024, Calendar.JANUARY, 1).getTime());
+        fechaSalida.setDateFormatString("dd-MM-yyyy");
+        fechaSalida.setDate(new Date());
+
+        fechaLlegada.setMinSelectableDate(new GregorianCalendar(2024, Calendar.JANUARY, 1).getTime());
+        fechaLlegada.setDateFormatString("dd-MM-yyyy");
+        fechaLlegada.setDate(new Date());
+
+        fechaSalida.getDateEditor().addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                if ("date".equals(evt.getPropertyName())) {
+                    Date fechasalida = fechaSalida.getDate();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(fechasalida);
+                    cal.add(Calendar.YEAR, 1); // Añadir un año a la fecha de salida
+                    Date maxFechaLlegada = cal.getTime();
+                    fechaLlegada.setSelectableDateRange(fechasalida, maxFechaLlegada);
+                }
+            }
+        });
     }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
     // Cosas que van a ir en el objeto
     public Date verFechaSalida() {
-        return jDateChooser1.getDate();
+        return fechaSalida.getDate();
     }
 
     public Date verFechaLlegada() {
-        return jDateChooser2.getDate();
+        return fechaLlegada.getDate();
     }
 
     public Date horaSalida() {
@@ -67,33 +101,12 @@ public class FrmAdmin extends javax.swing.JFrame {
         Date horaSalida = (Date) spHoraSalida.getValue();
         Date horaLlegada = (Date) spHoraLlegada.getValue();
 
-        // Verifica que las horas no sean nulas
-        if (horaSalida == null || horaLlegada == null) {
-            JOptionPane.showMessageDialog(null, "Las horas no pueden ser nulas!", "Error!", JOptionPane.ERROR_MESSAGE);
-            return 0; // Retorna 0 para indicar un error
-        }
+        long diferencia = horaLlegada.getTime() - horaSalida.getTime();
 
-        // Verifica que las horas no sean iguales
-        if (horaSalida.equals(horaLlegada)) {
-            JOptionPane.showMessageDialog(null, "Las horas no pueden ser iguales!", "Error!", JOptionPane.ERROR_MESSAGE);
-            return 0; // Retorna 0 para indicar un error
-        }
+        long diffMinutes = diferencia / (60 * 1000) % 60;
+        long diffHours = diferencia / (60 * 60 * 1000) % 24;
 
-        // Calcular la diferencia en milisegundos
-        long diferenciaEnMillis = horaLlegada.getTime() - horaSalida.getTime();
-
-        // Verifica que la hora de llegada sea después de la hora de salida
-        if (diferenciaEnMillis < 0) {
-            JOptionPane.showMessageDialog(null, "La hora de llegada debe ser después de la hora de salida!", "Error!", JOptionPane.ERROR_MESSAGE);
-            return 0; // Retorna 0 para indicar un error
-        }
-
-        // Convertir la diferencia a horas y minutos
-        long diferenciaEnHoras = diferenciaEnMillis / (1000 * 60 * 60);
-        long diferenciaEnMinutos = (diferenciaEnMillis / (1000 * 60)) % 60;
-
-        // Combinar horas y minutos en un solo entero
-        int duracionCombinada = (int) (diferenciaEnHoras * 100 + diferenciaEnMinutos);
+        int duracionCombinada = (int) (diffHours * 100 + diffMinutes);
 
         return duracionCombinada;
     }
@@ -117,79 +130,85 @@ public class FrmAdmin extends javax.swing.JFrame {
         cmbAerolinea.setModel(model);
     }
 
-    private void verAeropuertos() {
-        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) cmbAeropuertoLlegada.getModel();
+    private void verAeropuertosSalida() {
+        DefaultComboBoxModel<String> modelSalida = new DefaultComboBoxModel<>();
+
         ArrayList<String> lista = aviones.LeerAeropuertos();
 
-        aeropuertosMap.clear(); // Limpia el mapa antes de llenarlo
+        aeropuertosSalidaMap.clear(); // Limpia el mapa antes de llenarlo
 
         for (String aeropuerto : lista) {
             String[] partes = aeropuerto.split(",");
             if (partes.length > 1) {
                 String id = partes[0].trim();
                 String nombreAeropuerto = partes[1].trim();
-                model.addElement(nombreAeropuerto);
-                aeropuertosMap.put(nombreAeropuerto, id);
+                modelSalida.addElement(nombreAeropuerto);
+                aeropuertosSalidaMap.put(nombreAeropuerto, id);
             }
         }
+        cmbAeropuertoLlegada.setModel(modelSalida);
+    }
 
-        cmbAeropuertoLlegada.setModel(model);
-        cmbAeropuertoSalida.setModel(model);
+    private void verAeropuertosLlegada() {
+        DefaultComboBoxModel<String> modelLlegada = new DefaultComboBoxModel<>();
+        ArrayList<String> lista = aviones.LeerAeropuertos();
+        aeropuertosLlegadaMap.clear(); // Limpia el mapa antes de llenarlo
+
+        for (String aeropuerto : lista) {
+            String[] partes = aeropuerto.split(",");
+            if (partes.length > 1) {
+                String id = partes[0].trim();
+                String nombreAeropuerto = partes[1].trim();
+                modelLlegada.addElement(nombreAeropuerto);
+                aeropuertosLlegadaMap.put(nombreAeropuerto, id);
+            }
+        }
+        cmbAeropuertoSalida.setModel(modelLlegada);
     }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
-    // Selecciona Piloto y Servicio Al Cliente Basado en el ID de Aerolinea
-    private void seleccionarPilotoYServicio(String aerolineaID) {
+    // Selecciona ID de Piloto y Servicio al Cliente!
+    private String seleccionarPiloto(String aerolineaID) {
         ArrayList<String> pilotos = aviones.filtrarPilotos(aerolineaID);
-        ArrayList<String> servicioAlCliente = aviones.filtrarServicioAlCliente(aerolineaID);
-
-        if (pilotos.size() >= 2 && servicioAlCliente.size() >= 2) {
-            // Selecciona los dos primeros pilotos y servicios al cliente
-            String piloto1 = pilotos.get(0);
-            String piloto2 = pilotos.get(1);
-            String servicio1 = servicioAlCliente.get(0);
-            String servicio2 = servicioAlCliente.get(1);
-
-            // Extrae los IDs de los tripulantes
-            String pilotoID1 = piloto1.split(",")[0].trim();
-            String pilotoID2 = piloto2.split(",")[0].trim();
-            String servicioID1 = servicio1.split(",")[0].trim();
-            String servicioID2 = servicio2.split(",")[0].trim();
-
-            // Imprime los resultados para depuración
-            System.out.println("Pilotos seleccionados:");
-            System.out.println("Piloto 1 ID: " + pilotoID1);
-            System.out.println("Piloto 2 ID: " + pilotoID2);
-
-            System.out.println("Servicios al Cliente seleccionados:");
-            System.out.println("Servicio 1 ID: " + servicioID1);
-            System.out.println("Servicio 2 ID: " + servicioID2);
+        String pilotoID = buscarSiguienteDisponible(pilotos);
+        if (pilotoID != null) {
+            return pilotoID;
         } else {
-            System.out.println("No hay suficientes pilotos o servicios al cliente disponibles para la aerolínea seleccionada.");
+            // En caso de que no haya pilotos disponibles, retorna null
+            System.out.println("No hay pilotos disponibles para la aerolínea seleccionada.");
+            return null;
         }
     }
 
+    private String seleccionarServicioAlCliente(String aerolineaID) {
+        ArrayList<String> servicioAlCliente = aviones.filtrarServicioAlCliente(aerolineaID);
+        String servicioID = buscarSiguienteDisponible(servicioAlCliente);
+        if (servicioID != null) {
+            return servicioID;
+        } else {
+            System.out.println("No hay servicios al cliente disponibles para la aerolínea seleccionada.");
+            return null;
+        }
+    }
+
+// ---------------------------------------------------------------------------------------------------------------------------------
     private void ModificarPilotoYServicio(String aerolineaID) {
         ArrayList<String> pilotos = aviones.filtrarPilotos(aerolineaID);
         ArrayList<String> servicioAlCliente = aviones.filtrarServicioAlCliente(aerolineaID);
+        ArrayList<String> listaAviones = aviones.LeerAviones(aerolineaID);
 
-        // Imprime la cantidad de pilotos y servicios al cliente
-        System.out.println("Número de pilotos disponibles: " + pilotos.size());
-        System.out.println("Número de servicios al cliente disponibles: " + servicioAlCliente.size());
+        if (pilotos.size() >= 2 && servicioAlCliente.size() >= 2 && listaAviones.size() >= 2) {
 
-        if (pilotos.size() >= 2 && servicioAlCliente.size() >= 2) {
-            // Busca el siguiente piloto disponible
             String pilotoID = buscarSiguienteDisponible(pilotos);
-            // Busca el siguiente servicio al cliente disponible
             String servicioID = buscarSiguienteDisponible(servicioAlCliente);
+            String avionID = buscarSiguienteAvion(listaAviones);
 
-            if (pilotoID != null && servicioID != null) {
+            if (pilotoID != null && servicioID != null && avionID != null) {
                 try {
                     // Modifica la disponibilidad de los tripulantes seleccionados
                     aviones.ModificarDisponibilidad(pilotoID);
                     aviones.ModificarDisponibilidadServicioAlCLiente(servicioID);
-
-                    System.out.println("Disponibilidad modificada con éxito.");
+                    aviones.ModificarDisponibilidadAvion(avionID);
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println("Error al modificar la disponibilidad.");
@@ -207,6 +226,19 @@ public class FrmAdmin extends javax.swing.JFrame {
             String[] partes = item.split("\\s*,\\s*");
             String id = partes[0].trim();
             String disponibilidad = partes[4].trim(); // Suponiendo que la disponibilidad está en la posición 4
+
+            if (disponibilidad.equals("0")) { // 0 significa disponible
+                return id;
+            }
+        }
+        return null; // No hay disponibles
+    }
+
+    private String buscarSiguienteAvion(ArrayList<String> lista) {
+        for (String item : lista) {
+            String[] partes = item.split("\\s*,\\s*");
+            String id = partes[0].trim();
+            String disponibilidad = partes[3].trim(); // Suponiendo que la disponibilidad está en la posición 4
 
             if (disponibilidad.equals("0")) { // 0 significa disponible
                 return id;
@@ -246,8 +278,8 @@ public class FrmAdmin extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         btnCrear = new javax.swing.JButton();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
-        jDateChooser2 = new com.toedter.calendar.JDateChooser();
+        fechaSalida = new com.toedter.calendar.JDateChooser();
+        fechaLlegada = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -280,7 +312,7 @@ public class FrmAdmin extends javax.swing.JFrame {
         JSpinner.DateEditor de = new JSpinner.DateEditor(spHoraSalida, "hh:mm a");
         spHoraSalida.setEditor(de);
 
-        JSpinner.DateEditor xd = new JSpinner.DateEditor(spHoraLlegada, "hh:mm: a");
+        JSpinner.DateEditor xd = new JSpinner.DateEditor(spHoraLlegada, "hh:mm a");
         spHoraLlegada.setEditor(xd);
 
         jLabel5.setText("Hora de Salida");
@@ -329,12 +361,12 @@ public class FrmAdmin extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel8)
                             .addComponent(jLabel7)
-                            .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(fechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(fechaLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(278, 278, 278)
                         .addComponent(btnCrear, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(74, Short.MAX_VALUE))
+                .addContainerGap(231, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -370,12 +402,12 @@ public class FrmAdmin extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGap(50, 50, 50)
                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14)
+                        .addComponent(fechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(fechaLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(69, 69, 69)
                 .addComponent(btnCrear)
                 .addContainerGap(47, Short.MAX_VALUE))
@@ -384,30 +416,63 @@ public class FrmAdmin extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    // Boton para meter todo al objeto
-
     private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearActionPerformed
-        // TODO add your handling code here:
+        if (!validaciones()) {
+            return;
+        }
+
         String aerolineaID = obtenerIdAerolineaSeleccionada();
+        if (!aviones.puedeCrearVuelo(aerolineaID)) {
+            JOptionPane.showMessageDialog(null, "No se pueden crear más de dos vuelos por aerolínea.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // Asegúrate de que el ID no sea nulo o vacío antes de proceder
-        /* if (aerolineaID != null && !aerolineaID.trim().isEmpty()) {
-            // Seleccionar el piloto y el servicio al cliente para la aerolínea seleccionada
-            seleccionarPilotoYServicio(aerolineaID);
-            ModificarPilotoYServicio(aerolineaID);
+        int identificador = IdVuelo();
+        double precio;
+        try {
+            precio = Double.parseDouble(txtPrecio.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Precio inválido.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        } else {
-            System.out.println("No se ha seleccionado una aerolínea válida.");
-        } */
-      //   int duracion = CalcularDuracion();
-      /*  Date fechaSalida = verFechaSalida();
-        Date fechaLlegada = verFechaLlegada();
+        Date fechasalida = verFechaSalida();
+        Date horaSalida = horaSalida();
+        String aeropuertoSalida = obtenerIDAeropuertoSalida();
+        Date fechallegada = verFechaLlegada();
+        Date horaLlegada = horaLlegada();
+        String aeropuertoLlegada = obtenerIDAeropuertoLlegada();
+        int duracion = CalcularDuracion();
 
-        if (fechaSalida.before(fechaLlegada)) {
-            JOptionPane.showMessageDialog(null, "La fecha de llegada no puede ser menor a la de salida!", "Error con las fechas", JOptionPane.ERROR_MESSAGE);
-        } else if (fechaSalida.equals(fechaLlegada)) {
-            JOptionPane.showMessageDialog(null, "La fecha de llegada no puede ser igual a la de salida!", "Error con las fechas", JOptionPane.ERROR_MESSAGE);
-        } */
+        String idPiloto = seleccionarPiloto(aerolineaID);
+        String idServicioAlCliente = seleccionarServicioAlCliente(aerolineaID);
+
+        if (idPiloto == null || idServicioAlCliente == null) {
+            JOptionPane.showMessageDialog(null, "No se pudo seleccionar un piloto o servicio al cliente para la aerolínea.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ModificarPilotoYServicio(aerolineaID);
+
+        objVuelos nuevoVuelo = new objVuelos(
+                identificador,
+                aerolineaID,
+                precio,
+                fechasalida,
+                horaSalida,
+                aeropuertoSalida,
+                fechallegada,
+                horaLlegada,
+                aeropuertoLlegada,
+                duracion,
+                aerolineaID,
+                idServicioAlCliente,
+                idPiloto
+        );
+
+        objVuelos.vuelos.add(nuevoVuelo);
+        aviones.InsertarVuelo(objVuelos.vuelos);
+        JOptionPane.showMessageDialog(null, "Registrado Correctamente!", "Confirmación!", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnCrearActionPerformed
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -417,18 +482,24 @@ public class FrmAdmin extends javax.swing.JFrame {
         String aerolineaID = null;
         if (aerolineaSeleccionada != null) {
             aerolineaID = aerolineasMap.get(aerolineaSeleccionada);
-            System.out.println("ID de la aerolínea seleccionada: " + aerolineaID);
         }
         return aerolineaID;
     }
 
-    public String obtenerIDAeropuerto() {
+    public String obtenerIDAeropuertoSalida() {
         String aeropuertoSeleccionado = (String) cmbAeropuertoSalida.getSelectedItem();
         String aeropuertoID = null;
         if (aeropuertoSeleccionado != null) {
-            aeropuertoID = aeropuertosMap.get(aeropuertoSeleccionado);
-            System.out.println("ID del Aeropuerto: " + aeropuertoID);
+            aeropuertoID = aeropuertosSalidaMap.get(aeropuertoSeleccionado);
+        }
+        return aeropuertoID;
+    }
 
+    public String obtenerIDAeropuertoLlegada() {
+        String aeropuertoSeleccionado = (String) cmbAeropuertoLlegada.getSelectedItem();
+        String aeropuertoID = null;
+        if (aeropuertoSeleccionado != null) {
+            aeropuertoID = aeropuertosLlegadaMap.get(aeropuertoSeleccionado);
         }
         return aeropuertoID;
     }
@@ -446,6 +517,45 @@ public class FrmAdmin extends javax.swing.JFrame {
     private void cmbAeropuertoLlegadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbAeropuertoLlegadaActionPerformed
 
     }//GEN-LAST:event_cmbAeropuertoLlegadaActionPerformed
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+    private boolean validaciones() {
+        String aeropuertoLlegada = (String) cmbAeropuertoLlegada.getSelectedItem();
+        String aeropuertoSalida = (String) cmbAeropuertoSalida.getSelectedItem();
+        Date horallegada = (Date) spHoraLlegada.getValue();
+        Date horasalida = (Date) spHoraSalida.getValue();
+
+        if (aeropuertoLlegada.equals(aeropuertoSalida)) {
+            JOptionPane.showMessageDialog(null, "Los aeropuertos no pueden ser iguales", "Error Aeropuertos", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (horallegada.equals(horasalida)) {
+            JOptionPane.showMessageDialog(null, "La hora de salida y llegada no pueden ser iguales!", "Error con las horas!", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (horallegada.before(horasalida)) {
+            JOptionPane.showMessageDialog(null, "La hora de llegada no puede ser menor que la de salida!", "Error con las horas!", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Verificar que la diferencia sea de al menos 1 hora
+        Calendar calSalida = Calendar.getInstance();
+        calSalida.setTime(horasalida);
+
+        Calendar calLlegada = Calendar.getInstance();
+        calLlegada.setTime(horallegada);
+
+        calSalida.add(Calendar.HOUR_OF_DAY, 1); // Añadir 1 hora a la hora de salida
+
+        if (calLlegada.before(calSalida)) {
+            JOptionPane.showMessageDialog(null, "La diferencia entre la hora de salida y llegada debe ser de al menos 1 hora!", "Error con las horas!", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * @param args the command line arguments
@@ -495,8 +605,8 @@ public class FrmAdmin extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cmbAerolinea;
     private javax.swing.JComboBox<String> cmbAeropuertoLlegada;
     private javax.swing.JComboBox<String> cmbAeropuertoSalida;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
-    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private com.toedter.calendar.JDateChooser fechaLlegada;
+    private com.toedter.calendar.JDateChooser fechaSalida;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

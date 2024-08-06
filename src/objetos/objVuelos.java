@@ -15,32 +15,69 @@ import java.util.HashMap;
 public class objVuelos {
     
     private Integer Identificador;
-    private Integer IDAerolinea;
-    private Integer precio;
+    private String IDAerolinea;
+    private double precio;
     private Date fechasalida;
     private Date horasalida;
-    private Integer IDAeropuerto;
+    private String IDAeropuertoSalida;
+    private Date fechallegada;
+    private Date horallegada;
+    private String IDAeropuertoLlegada;
     private Integer duracion;
-    private Integer IDAvion;
-    private Integer IDAzafata;
-    private Integer IDPiloto;
+    private String IDAvion;
+    private String IDAzafata;
+    private String IDPiloto;
     
-    public static HashMap<Integer, objVuelos> vuelos = new HashMap<>();
+    public static ArrayList<objVuelos> vuelos = new ArrayList<>();
     
-    public objVuelos(Integer Identificador, Integer IDAerolinea, Integer precio, Date fechasalida, Date horasalida, Integer IDAeropuerto, Integer duracion, Integer IDAvion, Integer IDAzafata, Integer IDPiloto) {
-        this.Identificador = Identificador;
-        this.IDAerolinea = IDAerolinea;
-        this.precio = precio;
-        this.fechasalida = fechasalida;
-        this.horasalida = horasalida;
-        this.IDAeropuerto = IDAeropuerto;
-        this.duracion = duracion;
-        this.IDAvion = IDAvion;
-        this.IDAzafata = IDAzafata;
-        this.IDPiloto = IDPiloto;
-
-       
+    public objVuelos(Integer Identificador, String IDAerolinea, double precio, Date fechasalida, Date horasalida, String IDAeropuertoSalida, Date fechallegada, Date horallegada, 
+            String IDAeropuertoLlegada, Integer duracion, String IDAvion, String IDAzafata, String IDPiloto) {
+       this.Identificador = Identificador;
+       this.IDAerolinea = IDAerolinea;
+       this.precio = precio;
+       this.fechasalida = fechasalida;
+       this.horasalida = horasalida;
+       this.IDAeropuertoSalida = IDAeropuertoSalida;
+       this.fechallegada = fechallegada;
+       this.horallegada = horallegada;
+       this.IDAeropuertoLlegada = IDAeropuertoLlegada;
+       this.duracion = duracion;
+       this.IDAvion = IDAvion;
+       this.IDAzafata = IDAzafata;
+       this.IDPiloto = IDPiloto;
 }
+
+    public String getIDAeropuertoSalida() {
+        return IDAeropuertoSalida;
+    }
+
+    public void setIDAeropuertoSalida(String IDAeropuertoSalida) {
+        this.IDAeropuertoSalida = IDAeropuertoSalida;
+    }
+
+    public Date getFechallegada() {
+        return fechallegada;
+    }
+
+    public void setFechallegada(Date fechallegada) {
+        this.fechallegada = fechallegada;
+    }
+
+    public Date getHorallegada() {
+        return horallegada;
+    }
+
+    public void setHorallegada(Date horallegada) {
+        this.horallegada = horallegada;
+    }
+
+    public String getIDAeropuertoLlegada() {
+        return IDAeropuertoLlegada;
+    }
+
+    public void setIDAeropuertoLlegada(String IDAeropuertoLlegada) {
+        this.IDAeropuertoLlegada = IDAeropuertoLlegada;
+    }    
 
     public Integer getIdentificador() {
         return Identificador;
@@ -50,15 +87,7 @@ public class objVuelos {
         this.Identificador = Identificador;
     }
 
-    public Integer getIDAerolinea() {
-        return IDAerolinea;
-    }
-
-    public void setIDAerolinea(Integer IDAerolinea) {
-        this.IDAerolinea = IDAerolinea;
-    }
-
-    public Integer getPrecio() {
+    public double getPrecio() {
         return precio;
     }
 
@@ -82,14 +111,6 @@ public class objVuelos {
         this.horasalida = horasalida;
     }
 
-    public Integer getIDAeropuerto() {
-        return IDAeropuerto;
-    }
-
-    public void setIDAeropuerto(Integer IDAeropuerto) {
-        this.IDAeropuerto = IDAeropuerto;
-    }
-
     public Integer getDuracion() {
         return duracion;
     }
@@ -98,27 +119,39 @@ public class objVuelos {
         this.duracion = duracion;
     }
 
-    public Integer getIDAvion() {
+    public String getIDAerolinea() {
+        return IDAerolinea;
+    }
+
+    public void setIDAerolinea(String IDAerolinea) {
+        this.IDAerolinea = IDAerolinea;
+    }
+
+
+    public String getIDAvion() {
         return IDAvion;
     }
 
-    public void setIDAvion(Integer IDAvion) {
+    public void setIDAvion(String IDAvion) {
         this.IDAvion = IDAvion;
     }
 
-    public Integer getIDAzafata() {
+    public String getIDAzafata() {
         return IDAzafata;
     }
 
-    public void setIDAzafata(Integer IDAzafata) {
+    public void setIDAzafata(String IDAzafata) {
         this.IDAzafata = IDAzafata;
     }
 
-    public Integer getIDPiloto() {
+    public String getIDPiloto() {
         return IDPiloto;
     }
 
-    public void setIDPiloto(Integer IDPiloto) {
+    public void setIDPiloto(String IDPiloto) {
         this.IDPiloto = IDPiloto;
     }
+    
+    
+
 }

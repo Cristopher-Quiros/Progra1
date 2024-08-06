@@ -22,6 +22,8 @@ public class BDAviones {
     private final Object fileLock = new Object();
     private final String archivoTxt = "Tripulaciones.txt";
     private final String archivoCopia = "Tripulacion_temp.txt";
+    private final String archivoTxtAvion = "Aviones.txt";
+    private final String archivoCopiaAvion = "Aviones_temp.txt";
 
 // --------------------------------------------------------------------------------------------------------------
     // Aviones, Aerolineas
@@ -77,8 +79,26 @@ public class BDAviones {
         }
         return aerolineas;
     }
-// --------------------------------------------------------------------------------------------------------------
 
+    public ArrayList<String> LeerVuelos() {
+        ArrayList<String> vuelos = new ArrayList<>();
+        try {
+            File archivo = new File("vuelos.txt");
+            Scanner lector = new Scanner(archivo);
+            while (lector.hasNextLine()) {
+                String data = lector.nextLine();
+                // System.out.println("Línea leída: " + data); // Verificar qué líneas se están leyendo
+                vuelos.add(data);
+            }
+            lector.close();
+        } catch (Exception e) {
+            System.out.println("Error al leer el archivo");
+            e.printStackTrace();
+        }
+        return vuelos;
+    }
+
+// --------------------------------------------------------------------------------------------------------------
     // Personas
     public ArrayList<String> LeerTripulacion() {
         ArrayList<String> tripulacion = new ArrayList<>();
@@ -174,6 +194,48 @@ public class BDAviones {
                     String[] columnas = linea.split(",");
 
                     if (columnas.length > 1 && columnas[0].equals(AzafataSeleccionada)) {
+                        // Si el piloto está disponible (indicado por "0"), cámbialo a no disponible ("1")
+                        if (columnas[columnas.length - 1].trim().equals("0")) {
+                            columnas[columnas.length - 1] = "1";
+                            modificacionRealizada = true;
+                        }
+                    }
+
+                    writer.write(String.join(",", columnas));
+                    writer.newLine();
+                }
+
+                if (!modificacionRealizada) {
+                    System.out.println("No se encontró el personal de servicio al cliente o la disponibilidad ya está modificada.");
+                }
+
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    Files.move(pathTemporal, pathOriginal, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void ModificarDisponibilidadAvion(String AvionSeleccionado) {
+        synchronized (fileLock) {
+            Path pathOriginal = Paths.get(archivoTxtAvion);
+            Path pathTemporal = Paths.get(archivoCopiaAvion);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(pathOriginal.toFile())); BufferedWriter writer = new BufferedWriter(new FileWriter(pathTemporal.toFile()))) {
+
+                String linea;
+                boolean modificacionRealizada = false;
+
+                while ((linea = reader.readLine()) != null) {
+                    String[] columnas = linea.split(",");
+
+                    if (columnas.length > 1 && columnas[0].equals(AvionSeleccionado)) {
                         // Si el piloto está disponible (indicado por "0"), cámbialo a no disponible ("1")
                         if (columnas[columnas.length - 1].trim().equals("0")) {
                             columnas[columnas.length - 1] = "1";
