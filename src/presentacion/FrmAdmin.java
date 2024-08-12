@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.Random;
 import javax.swing.*;
 
-import negocio.Aviones;
+import negocio.ClaseNegocio;
 import objetos.objVuelos;
 
 /**
@@ -23,7 +23,7 @@ public class FrmAdmin extends javax.swing.JFrame {
     private Map<String, String> aeropuertosLlegadaMap;
     private Map<String, String> aeropuertosSalidaMap;
 
-    Aviones aviones = new Aviones();
+    ClaseNegocio aviones = new ClaseNegocio();
 
     public FrmAdmin() {
         initComponents();
@@ -33,6 +33,7 @@ public class FrmAdmin extends javax.swing.JFrame {
         verAerolineas();
         verAeropuertosLlegada();
         verAeropuertosSalida();
+        inicializarHoras();
 
         JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spHoraLlegada.getEditor();
         JFormattedTextField textField = editor.getTextField();
@@ -66,6 +67,25 @@ public class FrmAdmin extends javax.swing.JFrame {
                 }
             }
         });
+
+        txtPrecio.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtPrecioKeyTyped(evt);
+            }
+        });
+
+        spHoraSalida.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                validarHoras();
+            }
+        });
+
+        spHoraLlegada.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                validarHoras();
+            }
+        });
+
     }
 
 // ---------------------------------------------------------------------------------------------------------------------------------
@@ -309,10 +329,10 @@ public class FrmAdmin extends javax.swing.JFrame {
 
         jLabel4.setText("Precio");
 
-        JSpinner.DateEditor de = new JSpinner.DateEditor(spHoraSalida, "hh:mm a");
+        JSpinner.DateEditor de = new JSpinner.DateEditor(spHoraSalida, "HH:mm");
         spHoraSalida.setEditor(de);
 
-        JSpinner.DateEditor xd = new JSpinner.DateEditor(spHoraLlegada, "hh:mm a");
+        JSpinner.DateEditor xd = new JSpinner.DateEditor(spHoraLlegada, "HH:mm");
         spHoraLlegada.setEditor(xd);
 
         jLabel5.setText("Hora de Salida");
@@ -348,25 +368,27 @@ public class FrmAdmin extends javax.swing.JFrame {
                             .addComponent(jLabel1))
                         .addGap(142, 142, 142)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4)
-                            .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel6)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(spHoraLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)))
-                            .addComponent(spHoraSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(61, 61, 61)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel7)
-                            .addComponent(fechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fechaLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel4)
+                                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(spHoraSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(59, 59, 59)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel8)
+                                        .addComponent(jLabel7)
+                                        .addComponent(fechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(fechaLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(2, 2, 2))))
+                            .addComponent(spHoraLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(278, 278, 278)
                         .addComponent(btnCrear, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(231, Short.MAX_VALUE))
+                .addContainerGap(229, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -402,11 +424,11 @@ public class FrmAdmin extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGap(50, 50, 50)
                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fechaSalida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fechaLlegada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(69, 69, 69)
                 .addComponent(btnCrear)
@@ -539,22 +561,55 @@ public class FrmAdmin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "La hora de llegada no puede ser menor que la de salida!", "Error con las horas!", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        return true;
+    }
 
-        // Verificar que la diferencia sea de al menos 1 hora
-        Calendar calSalida = Calendar.getInstance();
-        calSalida.setTime(horasalida);
+    private void txtPrecioKeyTyped(java.awt.event.KeyEvent evt) {
+        char caracter = evt.getKeyChar();
 
-        Calendar calLlegada = Calendar.getInstance();
-        calLlegada.setTime(horallegada);
-
-        calSalida.add(Calendar.HOUR_OF_DAY, 1); // Añadir 1 hora a la hora de salida
-
-        if (calLlegada.before(calSalida)) {
-            JOptionPane.showMessageDialog(null, "La diferencia entre la hora de salida y llegada debe ser de al menos 1 hora!", "Error con las horas!", JOptionPane.ERROR_MESSAGE);
-            return false;
+        // Permitir números y un solo punto decimal
+        if (!(Character.isDigit(caracter) || caracter == '.')) {
+            evt.consume(); // Descartar caracteres no permitidos
         }
 
-        return true;
+        // Permitir solo un punto decimal
+        if (caracter == '.' && txtPrecio.getText().contains(".")) {
+            evt.consume(); // Descartar puntos adicionales
+        }
+    }
+
+    private void validarHoras() {
+        Date horaSalida = horaSalida();
+        Date horaLlegada = horaLlegada();
+
+        if (horaSalida != null && horaLlegada != null) {
+            long diferenciaMillis = horaLlegada.getTime() - horaSalida.getTime();
+
+            // Verifica que la diferencia sea al menos una hora (3600000 milisegundos)
+            if (diferenciaMillis < 3600000) {
+                JOptionPane.showMessageDialog(null, "La hora de llegada debe ser al menos una hora después de la hora de salida.", "Error!", JOptionPane.ERROR_MESSAGE);
+                // Ajustar la hora de llegada al menos una hora después de la hora de salida
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(horaSalida);
+                cal.add(Calendar.HOUR_OF_DAY, 1);
+                spHoraLlegada.setValue(cal.getTime());
+            }
+        }
+    }
+
+    private void inicializarHoras() {
+        Calendar cal = Calendar.getInstance();
+
+        // Establece la hora de salida a las 1 PM
+        cal.set(Calendar.HOUR_OF_DAY, 13);  // 13:00 en formato de 24 horas
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        spHoraSalida.setValue(cal.getTime());
+
+        // Establece la hora de llegada a una hora después de la hora de salida
+        cal.add(Calendar.HOUR_OF_DAY, 1);
+        spHoraLlegada.setValue(cal.getTime());
     }
 
     /**

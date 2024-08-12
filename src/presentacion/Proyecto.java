@@ -15,11 +15,15 @@ public class Proyecto {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-       /* FrmPrincipal ventana = new FrmPrincipal();
+       FrmCliente ventana = new FrmCliente();
         ventana.setVisible(true);
-*/
-       FrmAdmin ventana = new FrmAdmin();
+
+       /*FrmAdmin ventana = new FrmAdmin();
        ventana.setVisible(true);
+*/
+       /*FrmMatriz ventana = new FrmMatriz();
+       ventana.setVisible(true);
+*/
     }
     
 }

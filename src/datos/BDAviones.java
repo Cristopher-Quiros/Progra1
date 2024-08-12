@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
 
@@ -62,6 +64,31 @@ public class BDAviones {
         return aeropuertos;
     }
 
+    public Map<String, String> LeerAerolineasDesdeArchivoEnString() {
+        Map<String, String> mapaAerolineas = new HashMap<>();
+
+        try {
+            File archivo = new File("Aerolineas.txt");
+            Scanner lector = new Scanner(archivo);
+
+            while (lector.hasNextLine()) {
+                String linea = lector.nextLine();
+                String[] partes = linea.split(",");
+                if (partes.length == 2) {
+                    mapaAerolineas.put(partes[0].trim(), partes[1].trim());
+                } else {
+                    System.out.println("Formato de datos de aerolínea inválido: " + linea);
+                }
+            }
+
+            lector.close();
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo de aerolíneas: " + e.getMessage());
+        }
+
+        return mapaAerolineas;
+    }
+
     public ArrayList<String> LeerAerolineas() {
         ArrayList<String> aerolineas = new ArrayList<>();
         try {
@@ -69,13 +96,12 @@ public class BDAviones {
             Scanner lector = new Scanner(archivo);
             while (lector.hasNextLine()) {
                 String data = lector.nextLine();
-                // System.out.println("Línea leída: " + data); // Verificar qué líneas se están leyendo
+                // Aquí puedes agregar lógica adicional para validar los datos antes de agregarlos al ArrayList
                 aerolineas.add(data);
             }
             lector.close();
-        } catch (Exception e) {
-            System.out.println("Error al leer el archivo");
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo de aerolíneas: " + e.getMessage());
         }
         return aerolineas;
     }
@@ -287,4 +313,45 @@ public class BDAviones {
             e.printStackTrace();
         }
     }
-}
+
+    public void GuardarHistorial(String Historial) {
+        File archivo = new File("historial.txt");
+        System.out.println("Ruta absoluta del archivo: " + archivo.getAbsolutePath());
+
+        try (BufferedWriter archi = new BufferedWriter(new FileWriter(archivo, true))) {
+            archi.write(Historial + "\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final String ARCHIVO_ASIENTOS = "asientos.txt";  // Archivo genérico para guardar estado
+
+    public String[][] cargarEstadoAsientos() {
+        String[][] asientos = new String[6][7]; // Ajustar según el tamaño de la matriz
+
+        try (BufferedReader br = new BufferedReader(new FileReader(ARCHIVO_ASIENTOS))) {
+            String line;
+            int row = 0;
+            while ((line = br.readLine()) != null && row < asientos.length) {
+                asientos[row] = line.split(",");
+                row++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return asientos;
+    }
+
+    public void guardarEstadoAsientos(String[][] asientos) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO_ASIENTOS))) {
+            for (String[] row : asientos) {
+                bw.write(String.join(",", row));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    }

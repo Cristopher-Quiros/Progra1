@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import objetos.*;
 import presentacion.FrmAdmin;
 
@@ -17,7 +20,7 @@ import presentacion.FrmAdmin;
  *
  * @author Cris
  */
-public class Aviones {
+public class ClaseNegocio {
 
     BDAviones bdaviones = new BDAviones();
 
@@ -43,6 +46,22 @@ public class Aviones {
     public ArrayList<String> LeerAerolineas() {
         ArrayList<String> aerolineas = bdaviones.LeerAerolineas();
         return aerolineas;
+    }
+
+    public Map<String, String> LeerAerolineasDesdeBD() {
+        List<String> aerolineas = bdaviones.LeerAerolineas();
+        Map<String, String> mapaAerolineas = new HashMap<>();
+
+        for (String aerolinea : aerolineas) {
+            String[] partes = aerolinea.split(",");
+            if (partes.length == 2) {
+                mapaAerolineas.put(partes[0].trim(), partes[1].trim());
+            } else {
+                System.out.println("Formato de datos de aerolínea inválido: " + aerolinea);
+            }
+        }
+
+        return mapaAerolineas;
     }
 
     public ArrayList<String> LeerAeropuertos() {
@@ -208,5 +227,37 @@ public class Aviones {
     public boolean puedeCrearVuelo(String aerolineaID) {
         int conteoActual = contarVuelosPorAerolinea(aerolineaID);
         return conteoActual < 2;
+    }
+
+    public String[][] cargarEstadoAsientos() {
+        return bdaviones.cargarEstadoAsientos();
+    }
+
+    public void guardarEstadoAsientos(String[][] asientos) {
+        bdaviones.guardarEstadoAsientos(asientos);
+    }
+
+    public String[][] asignarAsientosAutomáticamente(int numPersonas) {
+        String[][] asientos = cargarEstadoAsientos();
+
+        // Asignar asientos automáticamente
+        int contador = 0;
+        for (int i = 0; i < asientos.length; i++) {
+            for (int j = 0; j < asientos[i].length; j++) {
+                if (contador >= numPersonas) {
+                    break;
+                }
+                if (asientos[i][j].equals("Disponible")) {
+                    asientos[i][j] = "Ocupado";
+                    contador++;
+                }
+            }
+            if (contador >= numPersonas) {
+                break;
+            }
+        }
+
+        guardarEstadoAsientos(asientos);
+        return asientos;
     }
 }

@@ -7,7 +7,7 @@ package presentacion;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import negocio.Aviones;
+import negocio.ClaseNegocio;
 import objetos.objUsuarios;
 
 /**
@@ -19,15 +19,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
     /**
      * Creates new form FrmPrincipal
      */
-    Aviones aviones = new Aviones();
-
+    ClaseNegocio negocio = new ClaseNegocio();
 
     public FrmPrincipal() {
         initComponents();
-      //  verInfoAviones();
+        setLocationRelativeTo(null);
+        //  verInfoAviones();
     }
 
-  /*  private void verInfoAviones() {
+    /*  private void verInfoAviones() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         ArrayList<String> lista = aviones.LeerAviones();
@@ -37,7 +37,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
 
     } */
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -165,6 +164,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public static boolean validarCedula(String cedula) {
+        if (cedula.matches("\\d{9}")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         // TODO add your handling code here:
         String nombre = txtNombre.getText();
@@ -172,15 +179,45 @@ public class FrmPrincipal extends javax.swing.JFrame {
         String correo = txtCorreo.getText();
         String contrasena = pfContrasena.getText();
         String edad = String.valueOf(spEdad.getValue());
-        String tipo = "0";
-        objUsuarios.listaUsuarios.add(new objUsuarios(cedula, nombre, edad, contrasena, correo, tipo));
-        aviones.InsertarUsuario(objUsuarios.listaUsuarios);
-        JOptionPane.showMessageDialog(null, "Registrado Correctamente!", "Confirmacion!", JOptionPane.INFORMATION_MESSAGE);
-        
-        
-        
+        String tipo = "Cliente";
+
+        //-----------------------------------------------------------------------------------------
+        //Verificar que ningun espacio este vacio
+        if (cedula.isEmpty() || contrasena.isEmpty() || nombre.isEmpty() || correo.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No puedes dejar espacios en blanco", "Error de Inicio de Sesion", JOptionPane.ERROR_MESSAGE);
+        } else {
+            //-----------------------------------------------------------------------------------------
+            //Verificar que el formato de cedula sea valido
+            boolean verificarcedulavalida = validarCedula(cedula);
+            if (verificarcedulavalida == false) {
+                JOptionPane.showMessageDialog(null, "La cédula debe ser un número entero de 9 dígitos \n sin espacios ni caracteres no numéricos.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                //-----------------------------------------------------------------------------------------
+                //Verifica que no se pueda repetir la cedula ni el correo
+                boolean verificarunicos = verificarCedulaUnica(cedula, correo);
+                if (verificarunicos == false) {
+                    JOptionPane.showMessageDialog(null, "Cedula o correo ya exsistentes", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    objUsuarios.listaUsuarios.add(new objUsuarios(cedula, nombre, edad, contrasena, correo, tipo));
+                    negocio.InsertarUsuario(objUsuarios.listaUsuarios);
+                    JOptionPane.showMessageDialog(null, "Registrado Correctamente!", "Confirmacion!", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
+    private boolean verificarCedulaUnica(String cedula, String correo) {
+        ArrayList<String> usuarios = negocio.LeerUsuarios();
+        for (String usuario : usuarios) {
+            String[] partes = usuario.split(",");
+            String id = partes[0].trim();
+            String gmail = partes[3].trim();
+            if (id.equals(cedula) || gmail.equals(correo)) {
+                return false;
+            }
+        }
+        return true;
+    }
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
         FrmLogin ventana = new FrmLogin();

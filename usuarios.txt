@@ -1,3 +1,2 @@
-123123123,Cristo Rey,123,asdasd,100,0
-123,asdasd,123,asdasdads,100,0
-121321,Tangamandapio,123,asdasdasd,1,0
+987654321,Tangamandapio Rodriguez Alvarado,Lol,pepitogrillo@gmail.com,32,Administrador
+208830610,Elías Josue Salas Méndez,lolipop,SalasJo0610@gmail.com,19,Cliente
